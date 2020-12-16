@@ -6,61 +6,83 @@ output: github_document
 ```{r import}
 library(magrittr)
 library(tidyverse)
+library(tidytext)
 
-df <- tidytuesdayR::tt_load(2020, week = 51)
-df <- df$ninja_warrior
+raw_df <- tidytuesdayR::tt_load(2020, week = 51)
+raw_df <- raw_df$ninja_warrior
 ```
 
 ```{r}
-df
+raw_df
 ```
-
-
-
 ```{r}
-unique(df$season)
-```
-
-
-```{r}
-unique(df$location)
+raw_df %>%
+  distinct(round_stage)
 ```
 
 
 ```{r}
-df <- df %>%
-  mutate(location = case_when(grepl("Japan", location) ~ "Japan", 
-                              location == "San Pedro (Military)" ~ "San Pedro",
-                               TRUE ~ location)) 
-
-```
-
-```{r}
-```
-
-```{r fig.height = 8, fig.width = 6}
-df %>%
-  count(obstacle_name, name = "count") %>%
-  arrange(desc(count)) %>%
-  slice_max(count, n = 20) %>%
-  ggplot(aes(y = fct_reorder(obstacle_name, count), x = count)) +
-  geom_col() +
-  theme_minimal() +
-  labs(
-    title = "Most popular obstacles",
-    x = "Count",
-    y = "Obstacle"
+df <- raw_df %>%
+  mutate(round_stage = case_when(
+           str_detect(round_stage, "National Finals") ~ "National Finals",
+           str_detect(round_stage, "Semi-Finals") ~ "Semi-Finals",
+           str_detect(round_stage, "Finals") ~ "Finals",
+           str_detect(round_stage, "Qualifying") ~ "Qualifying",
+         )
   )
 
 ```
 
+What are the 10 most popular obstacles?
+
 ```{r}
+df %>%
+  count(round_stage, obstacle_name, name = "count") %>%
+  arrange(desc(count)) %>%
+  group_by(round_stage) %>%
+  slice_max(count, n = 10, with_ties = FALSE) %>%
+  ungroup() %>%
+  mutate(obstacle_name = reorder_within(x = obstacle_name, by = count, within = round_stage)) %>%
+  ggplot(aes(y = obstacle_name, x = count)) +
+  geom_col() +
+  scale_y_reordered() +
+  scale_x_continuous(expand = c(0,0)) +
+  labs(
+    title = "Ninja Warrior obstacles",
+    subtitle = "What are the most popular obstacles by stage?",
+    x = "Count",
+    y = ""
+  ) +
+  facet_wrap(. ~ round_stage, scales = "free") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(family = "Roboto Condensed", size = 18),
+    plot.subtitle = element_text(family = "Roboto Condensed", size = 16),
+    axis.text = element_text(family = "Roboto Condensed", size = 10),
+    strip.text = element_text(family = "Roboto Condensed", size = 12, hjust = 0),
+    axis.ticks = element_blank(),
+    panel.spacing = unit(0.5, "cm"),
+    aspect.ratio = 1
+  )
+
+```
+
+What would a typical course look like?
+
+```{r}
+set.seed(2020)
 # Where are the different obstacles?
 df %>%
-  count(obstacle_order, obstacle_name, name = "count") %>%
-  arrange(obstacle_order, desc(count)) %>%
   group_by(obstacle_order) %>%
-  mutate(obstacle_name = fct_lump_n(f = obstacle_name, w = count, n = 5)
+  mutate(obstacle_name = fct_lump_n(obstacle_name, 2, ties.method = "random"),
+         obstacle_name = fct_drop(obstacle_name),
+         obstacle_name = fct_relevel(obstacle_name, "Other", after = Inf)) %>%
+  count(obstacle_name) %>%
+  arrange(obstacle_order, n) %>%
+  mutate(pct = n / sum(n)) %>%
+  ungroup() %>%
+  ggplot(aes(x = obstacle_order, y = pct, fill = obstacle_name)) +
+  geom_col()
 ```
 
 
