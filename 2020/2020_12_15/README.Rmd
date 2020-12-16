@@ -3,7 +3,7 @@ title: "Week 2020/51: Ninja Warrior"
 output: github_document
 ---
 
-```{r load-and-import, message=FALSE, warning=FALSE}
+```{r load-and-import, message=FALSE, warning=FALSE, include=FALSE}
 extrafont::loadfonts(device="win")
 #extrafont::fonttable()
 #extrafont::font_import("C:/Windows/Fonts/", pattern = "RobotoCondensed")
@@ -20,6 +20,7 @@ raw_df <- raw_df$ninja_warrior
 ```{r}
 raw_df
 ```
+
 ```{r}
 raw_df %>%
   distinct(round_stage)

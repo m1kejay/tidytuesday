@@ -3,69 +3,19 @@ Week 2020/51: Ninja Warrior
 
 ``` r
 extrafont::loadfonts(device="win")
-```
-
-    ## Registering font with R using windowsFonts(): Roboto Condensed
-
-``` r
 #extrafont::fonttable()
 #extrafont::font_import("C:/Windows/Fonts/", pattern = "RobotoCondensed")
 
 library(tidyverse)
-```
-
-    ## -- Attaching packages --------------------------------------- tidyverse 1.3.0 --
-
-    ## v ggplot2 3.3.2     v purrr   0.3.4
-    ## v tibble  3.0.4     v dplyr   1.0.2
-    ## v tidyr   1.1.2     v stringr 1.4.0
-    ## v readr   1.4.0     v forcats 0.5.0
-
-    ## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
-    ## x dplyr::filter() masks stats::filter()
-    ## x dplyr::lag()    masks stats::lag()
-
-``` r
 library(tidytext)
 library(ggtext)
 library(glue)
-```
 
-    ## 
-    ## Attaching package: 'glue'
-
-    ## The following object is masked from 'package:dplyr':
-    ## 
-    ##     collapse
-
-``` r
 raw_df <- tidytuesdayR::tt_load(2020, week = 51)
 ```
 
-    ## Only 4 Github queries remaining until 2020-12-16 03:10:41 PM CST.
-
-    ## Only 4 Github queries remaining until 2020-12-16 03:10:41 PM CST.
-    ## Only 4 Github queries remaining until 2020-12-16 03:10:41 PM CST.
-    ## Only 4 Github queries remaining until 2020-12-16 03:10:41 PM CST.
-    ## Only 4 Github queries remaining until 2020-12-16 03:10:41 PM CST.
-
-    ## --- Compiling #TidyTuesday Information for 2020-12-15 ----
-
-    ## Only 3 Github queries remaining until 2020-12-16 03:10:41 PM CST.
-
-    ## --- There is 1 file available ---
-
-    ## Only 2 Github queries remaining until 2020-12-16 03:10:41 PM CST.
-
-    ## --- Starting Download ---
-
-    ## Only 2 Github queries remaining until 2020-12-16 03:10:41 PM CST.
-
+    ## 
     ##  Downloading file 1 of 1: `ninja_warrior.csv`
-
-    ## Only 1 Github queries remaining until 2020-12-16 03:10:42 PM CST.
-
-    ## --- Download complete ---
 
 ``` r
 raw_df <- raw_df$ninja_warrior
