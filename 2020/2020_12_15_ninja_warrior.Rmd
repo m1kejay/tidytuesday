@@ -7,6 +7,8 @@ output: github_document
 library(magrittr)
 library(tidyverse)
 library(tidytext)
+library(ggtext)
+library(glue)
 
 raw_df <- tidytuesdayR::tt_load(2020, week = 51)
 raw_df <- raw_df$ninja_warrior
@@ -44,7 +46,7 @@ df %>%
   ungroup() %>%
   mutate(obstacle_name = reorder_within(x = obstacle_name, by = count, within = round_stage)) %>%
   ggplot(aes(y = obstacle_name, x = count)) +
-  geom_col() +
+  geom_col(fill = "#57C1F1", colour = "white") +
   scale_y_reordered() +
   scale_x_continuous(expand = c(0,0)) +
   labs(
@@ -61,6 +63,7 @@ df %>%
     axis.text = element_text(family = "Roboto Condensed", size = 10),
     strip.text = element_text(family = "Roboto Condensed", size = 12, hjust = 0),
     axis.ticks = element_blank(),
+    axis.ticks.x = element_blank(),
     panel.spacing = unit(0.5, "cm"),
     aspect.ratio = 1
   )
@@ -69,15 +72,7 @@ df %>%
 
 What would a typical course look like?
 
-```{r}
-df %>%
-  distinct(obstacle_name) %>%
-  arrange(obstacle_name)
-```
-
 ```{r fig.width = 10}
-library(ggtext)
-library(glue)
 # Where are the different obstacles?
 df %>%
   group_by(obstacle_order, obstacle_name) %>%
@@ -85,13 +80,13 @@ df %>%
   ungroup() %>%
   group_by(obstacle_order) %>%
   mutate(pct = round((100 * n / sum(n)), 0)) %>%
-  slice_max(pct) %>%
+  slice_max(pct, with_ties = FALSE) %>%
   ggplot(aes(x = obstacle_order, y = 1)) +
-  geom_line(alpha = 0.5) +
+  geom_line(colour = "#57C1F1") +
   geom_richtext(
     aes(
       x = obstacle_order, 
-      y = 1.1,
+      y = 1.15,
       angle = 45,
       hjust = 0,
       vjust = 0,
@@ -100,24 +95,30 @@ df %>%
     colour = "#FFFFFF",
     fill = NA,
     label.colour = NA,
-    family = "Roboto Condensed"
+    family = "Roboto"
     ) +
-  geom_point(size = 8, shape = 21, fill = "#CCCCCC", colour = "red") +
+  geom_point(size = 10, shape = 21, fill = "#1e1e1e", colour = "#57C1F1", stroke = 1) +
   geom_richtext(
     aes(
       x = obstacle_order, 
       y = 1, 
       label = glue("**{obstacle_order}**")
       ),
-    label.colour = NA,
+    vjust = 0.55,
+    colour = "#FFFFFF",
     fill = NA,
-    family = "Roboto Condensed"
+    label.colour = NA,
+    family = "Roboto"
   ) +
+#  geom_richtext(
+#    label = glue("<span style='font-family: \"Font Awesome 5 Free Solid\"'>&#62766; &#62650; &#62577;</span>"),
+#    aes(x = 10, y = 1)
+#  ) +
   theme_void() +
   theme(
     plot.background = element_rect(fill = "#1e1e1e", colour = "#1e1e1e"),
     plot.margin = margin(3, 3, 3, 3, "cm"),
-    plot.title = element_text(family = "Roboto Condensed", size = 18, colour = "#FFFFFF"),
+    plot.title = element_markdown(family = "Roboto Condensed", size = 18, colour = "#FFFFFF", face = "bold"),
     plot.subtitle = element_text(family = "Roboto Condensed", size = 16, colour = "#FFFFFF"),
   ) +
   scale_y_continuous(
@@ -130,8 +131,17 @@ df %>%
     title = "Ninja Warrior's most typical course",
     subtitle = "What is the most popular obstable at each stage?"
   )
-  
 ```
 
 
+```{r}
+ggsave(
+  plot = plot,
+  filename = here::here('2020_12_15_ninja_warrior/typical_course.pdf'),
+  device = "pdf",
+  width = 8,
+  height = 6,
+  dpi = 300
+)
+```
 
