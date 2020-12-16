@@ -3,7 +3,7 @@ title: "Week 2020/51: Ninja Warrior"
 output: github_document
 ---
 
-```{r import}
+```{r load-and-import}
 library(magrittr)
 library(tidyverse)
 library(tidytext)
@@ -70,19 +70,67 @@ df %>%
 What would a typical course look like?
 
 ```{r}
-set.seed(2020)
+df %>%
+  distinct(obstacle_name) %>%
+  arrange(obstacle_name)
+```
+
+```{r fig.width = 10}
+library(ggtext)
+library(glue)
 # Where are the different obstacles?
 df %>%
-  group_by(obstacle_order) %>%
-  mutate(obstacle_name = fct_lump_n(obstacle_name, 2, ties.method = "random"),
-         obstacle_name = fct_drop(obstacle_name),
-         obstacle_name = fct_relevel(obstacle_name, "Other", after = Inf)) %>%
-  count(obstacle_name) %>%
-  arrange(obstacle_order, n) %>%
-  mutate(pct = n / sum(n)) %>%
+  group_by(obstacle_order, obstacle_name) %>%
+  count() %>%
   ungroup() %>%
-  ggplot(aes(x = obstacle_order, y = pct, fill = obstacle_name)) +
-  geom_col()
+  group_by(obstacle_order) %>%
+  mutate(pct = round((100 * n / sum(n)), 0)) %>%
+  slice_max(pct) %>%
+  ggplot(aes(x = obstacle_order, y = 1)) +
+  geom_line(alpha = 0.5) +
+  geom_richtext(
+    aes(
+      x = obstacle_order, 
+      y = 1.1,
+      angle = 45,
+      hjust = 0,
+      vjust = 0,
+      label = glue("**{obstacle_name}** ({pct}%)")
+    ),
+    colour = "#FFFFFF",
+    fill = NA,
+    label.colour = NA,
+    family = "Roboto Condensed"
+    ) +
+  geom_point(size = 8, shape = 21, fill = "#CCCCCC", colour = "red") +
+  geom_richtext(
+    aes(
+      x = obstacle_order, 
+      y = 1, 
+      label = glue("**{obstacle_order}**")
+      ),
+    label.colour = NA,
+    fill = NA,
+    family = "Roboto Condensed"
+  ) +
+  theme_void() +
+  theme(
+    plot.background = element_rect(fill = "#1e1e1e", colour = "#1e1e1e"),
+    plot.margin = margin(3, 3, 3, 3, "cm"),
+    plot.title = element_text(family = "Roboto Condensed", size = 18, colour = "#FFFFFF"),
+    plot.subtitle = element_text(family = "Roboto Condensed", size = 16, colour = "#FFFFFF"),
+  ) +
+  scale_y_continuous(
+    limits = c(0, 3)
+  ) +
+  coord_cartesian(
+    clip = "off"
+  ) +
+  labs(
+    title = "Ninja Warrior's most typical course",
+    subtitle = "What is the most popular obstable at each stage?"
+  )
+  
 ```
 
 
