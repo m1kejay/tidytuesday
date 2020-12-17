@@ -108,7 +108,8 @@ What would a typical course look like?
 
 ``` r
 # Where are the different obstacles?
-df %>%
+typical_course <-
+  df %>%
   group_by(obstacle_order, obstacle_name) %>%
   count() %>%
   ungroup() %>%
@@ -149,10 +150,14 @@ df %>%
     label.colour = NA,
     family = "Roboto Condensed"
   ) +
-#  geom_richtext(
-#    label = glue("<span style='font-family: \"Font Awesome 5 Free Solid\"'>&#62766; &#62650; &#62577;</span>"),
-#    aes(x = 10, y = 1)
-#  ) +
+  geom_richtext(
+    label = glue("Stage"),
+    aes(x = 0, y = 1),
+    colour = "#FFFFFF",
+    fill = NA,
+    label.colour = NA,
+    family = "Roboto Condensed"
+  ) +
   theme_void() +
   theme(
     plot.background = element_rect(fill = "#1e1e1e", colour = "#1e1e1e"),
@@ -164,13 +169,20 @@ df %>%
     limits = c(0, 10)
   ) +
   coord_cartesian(
-    #ylim = c(0, 15),
     clip = "off"
   ) +
   labs(
     title = "Ninja Warrior's most typical course",
     subtitle = "What is the most popular obstable at each stage?"
   )
+typical_course
 ```
 
 ![](README_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+
+``` r
+ggsave(filename = "typical_course.pdf",
+       plot = typical_course,
+       dpi = 300,
+       path = here::here("2020", "2020_12_15"))
+```

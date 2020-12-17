@@ -3,7 +3,7 @@ title: "Week 2020/51: Ninja Warrior"
 output: github_document
 ---
 
-```{r load-and-import, message=FALSE, warning=FALSE, include=FALSE}
+```{r load-and-import, echo=TRUE, message=FALSE, warning=FALSE}
 extrafont::loadfonts(device="win")
 #extrafont::fonttable()
 #extrafont::font_import("C:/Windows/Fonts/", pattern = "RobotoCondensed")
@@ -76,9 +76,10 @@ df %>%
 
 What would a typical course look like?
 
-```{r dpi = 300}
+```{r dpi = 300, fig.width = 9}
 # Where are the different obstacles?
-df %>%
+typical_course <-
+  df %>%
   group_by(obstacle_order, obstacle_name) %>%
   count() %>%
   ungroup() %>%
@@ -90,7 +91,8 @@ df %>%
   geom_segment(
     aes(x = obstacle_order, xend = obstacle_order, y = 1, yend = 2.1),
     colour = "#57C1F1",
-    alpha = 0.25
+    alpha = 0.25,
+    lineend = "round"
   ) +
   geom_richtext(
     aes(
@@ -119,10 +121,14 @@ df %>%
     label.colour = NA,
     family = "Roboto Condensed"
   ) +
-#  geom_richtext(
-#    label = glue("<span style='font-family: \"Font Awesome 5 Free Solid\"'>&#62766; &#62650; &#62577;</span>"),
-#    aes(x = 10, y = 1)
-#  ) +
+  geom_richtext(
+    label = glue("Stage"),
+    aes(x = 0, y = 1),
+    colour = "#FFFFFF",
+    fill = NA,
+    label.colour = NA,
+    family = "Roboto Condensed"
+  ) +
   theme_void() +
   theme(
     plot.background = element_rect(fill = "#1e1e1e", colour = "#1e1e1e"),
@@ -134,13 +140,22 @@ df %>%
     limits = c(0, 10)
   ) +
   coord_cartesian(
-    #ylim = c(0, 15),
     clip = "off"
   ) +
   labs(
     title = "Ninja Warrior's most typical course",
     subtitle = "What is the most popular obstable at each stage?"
   )
+typical_course
 ```
 
+```{r eval=FALSE}
+ggsave(filename = "typical_course.pdf",
+       device = cairo_pdf,
+       plot = typical_course,
+       dpi = 300,
+       width = 7,
+       height = 4.5,
+       path = here::here("2020", "2020_12_15"))
+```
 

@@ -1,0 +1,114 @@
+---
+title: "Untitled"
+output: github_document
+knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_file = file.path(dirname(inputFile), 'README.md')) })
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+extrafont::loadfonts(device="win")
+#extrafont::fonttable()
+#extrafont::font_import("C:/Windows/Fonts/", pattern = "RobotoCondensed")
+
+library(tidyverse)
+library(lubridate)
+#extrafont::fonttable()
+#extrafont::font_import("C:/Windows/Fonts/", pattern = "RobotoCondensed")
+```
+
+```{r}
+raw_df <- tidytuesdayR::tt_load(2020, week = 49)
+raw_df <- raw_df$shelters
+```
+```{r}
+raw_df
+```
+
+Not sure what some of the fields refer to. Looks like `id` is in the dataset 3 times:
+
+```{r}
+raw_df %>%
+  count(id) %>%
+  ggplot(aes(x = n)) + geom_histogram()
+```
+but it's not referring to identical shelters/facilities/program names:
+
+```{r}
+raw_df %>%
+  filter(id %in% 1:4) %>%
+  arrange(id)
+```
+
+Ignore for now...
+
+```{r}
+raw_df %>%
+  distinct(sector)
+```
+
+
+```{r}
+raw_df %>%
+  mutate(month = month(occupancy_date, label = TRUE),
+         year = year(occupancy_date)) %>%
+  group_by(month, year, sector) %>%
+  summarise(mean_occupancy = mean(occupancy, na.rm = T)) %>%
+  ggplot(aes(x = month, y = mean_occupancy, colour = as.factor(sector), group = sector)) +
+  geom_line() +
+  geom_point() +
+  facet_grid(. ~ year) +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5)
+  )
+```
+
+```{r}
+raw_df %>%
+  mutate(month = month(occupancy_date, label = TRUE),
+         year = year(occupancy_date)) %>%
+  group_by(month, year, sector) %>%
+  summarise(mean_occupancy = mean(occupancy, na.rm = T),
+            mean_capacity = mean(capacity, na.rm = T),
+            pct = mean_occupancy / mean_capacity) %>%
+ggplot(aes(x = month, y = pct, colour = as.factor(sector), group = sector)) +
+  geom_line() +
+  geom_point() +
+  facet_grid(. ~ year) +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5)
+  )
+```
+
+```{r dpi = 300, fig.height = 6, fig.width = 8}
+library(ggtext)
+
+raw_df %>%
+  mutate(diff = capacity - occupancy) %>%
+   mutate(month = month(occupancy_date, label = TRUE),
+         year = year(occupancy_date)) %>%
+  group_by(month, year, sector) %>%
+  summarise(mean_diff = mean(diff, na.rm = T), .groups = "keep") %>%
+  ungroup() %>%
+  ggplot(aes(x = month, y = mean_diff)) +
+  geom_col(fill = "#5D729D", colour = NA) +
+  facet_grid(sector ~ year) +
+  labs(
+    title = "Spare capacity",
+    subtitle = "How many spare beds are there?"
+  ) +
+  theme_minimal() + 
+   theme(
+     aspect.ratio = 0.3,
+     axis.text.x = element_text(family = "Roboto Condensed", size = 11, colour = "grey30", angle = 90, vjust = 0.5),
+     axis.text.y = element_text(family = "Roboto Condensed", size = 11, colour = "grey30"),
+     plot.title = element_text(family = "Roboto Condensed", size = 18, colour = "#000000", face = "bold"),
+     plot.subtitle = element_text(family = "Roboto Condensed", size = 16, colour = "#000000"),
+     panel.grid.minor = element_blank(),
+     strip.text.x = element_textbox(
+      size = 12,
+      color = "white", fill = "#5D729D", box.color = "#4A618C",
+      halign = 0.5, linetype = 1, r = unit(1, "pt"), width = unit(1, "npc"),
+      padding = margin(2, 0, 1, 0), margin = margin(3, 3, 3, 3)
+   )
+   )
+```

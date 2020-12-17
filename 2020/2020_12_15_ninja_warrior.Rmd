@@ -1,0 +1,78 @@
+---
+title: "Week 2020/51: Ninja Warrior"
+output: github_document
+---
+
+```{r import}
+library(magrittr)
+library(tidyverse)
+
+df <- tidytuesdayR::tt_load(2020, week = 51)
+df <- df$ninja_warrior
+```
+
+```{r}
+df
+```
+
+
+
+```{r}
+unique(df$round_stage)
+```
+
+
+```{r}
+unique(df$location)
+```
+
+
+```{r}
+df <- df %>%
+  mutate(location = case_when(grepl("Japan", location) ~ "Japan", 
+                              location == "San Pedro (Military)" ~ "San Pedro",
+                               TRUE ~ location)) 
+
+```
+
+```{r}
+```
+
+```{r fig.height = 8, fig.width = 6}
+df %>%
+  count(obstacle_name, name = "count") %>%
+  arrange(desc(count)) %>%
+  slice_max(count, n = 10, with_ties = FALSE) %>%
+  ggplot(aes(y = fct_reorder(obstacle_name, count), x = count)) +
+  geom_col() +
+  theme_minimal() +
+  labs(
+    title = "Most popular obstacles",
+    x = "Count",
+    y = "Obstacle"
+  )
+
+```
+
+```{r}
+# Where are the different obstacles?
+df %>%
+  group_by(obstacle_order) %>%
+  mutate(obstacle_name = fct_lump_n(f = obstacle_name,, n = 4, ties.method = "min"),
+         obstacle_name = fct_drop(obstacle_name)) %>%
+  arrange(obstacle_order, desc(count)) 
+  
+  
+group_by(obstacle_order, obstacle_name) %>%
+  summarise(count = sum(count)) %>%
+  ungroup()
+  ggplot(aes(x = obstacle_order, y = count, fill = obstacle_name)) +
+  geom_col() +
+  theme(
+    legend.position = "none"
+  )
+  
+```
+
+
+
