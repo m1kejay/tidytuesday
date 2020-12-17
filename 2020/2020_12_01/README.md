@@ -102,13 +102,34 @@ raw_df %>%
          year = year(occupancy_date)) %>%
   group_by(month, year, sector) %>%
   summarise(mean_occupancy = mean(occupancy, na.rm = T)) %>%
-  ggplot(aes(x = month, y = mean_occupancy, colour = as.factor(sector), group = sector)) +
+  ggplot(aes(x = month, y = mean_occupancy, colour = fct_reorder(sector, mean_occupancy, .desc = TRUE), group = sector)) +
   geom_line() +
   geom_point() +
   facet_grid(. ~ year) +
-  theme(
-    axis.text.x = element_text(angle = 90, vjust = 0.5)
-  )
+  theme_minimal() + 
+   theme(
+     axis.text.x = element_text(family = "Roboto Condensed", size = 11, colour = "grey30", angle = 90, vjust = 0.5),
+     axis.text.y = element_text(family = "Roboto Condensed", size = 11, colour = "grey30"),
+     plot.title = element_text(family = "Roboto Condensed", size = 18, colour = "#000000", face = "bold"),
+     plot.subtitle = element_text(family = "Roboto Condensed", size = 16, colour = "#000000"),
+     panel.grid.minor = element_blank(),
+     panel.grid.major = element_line(linetype = "dotted"),
+     strip.text.x = element_textbox(
+      size = 12,
+      color = "white", fill = "#5D729D", box.color = "#4A618C",
+      halign = 0.5, linetype = 1, r = unit(1, "pt"), width = unit(1, "npc"),
+      padding = margin(2, 0, 1, 0), margin = margin(3, 3, 3, 3)),
+     legend.title = element_blank(),
+     
+   ) +
+  labs(
+    title = "Toronto Shelter Occupacy",
+    subtitle = "Occupancy for families dramatically increased from 2017 into 2018",
+    legend = "",
+    x = "",
+    y = "Monthly Mean Occupancy"
+  ) +
+  colorspace::scale_color_discrete_qualitative()
 ```
 
     ## `summarise()` regrouping output by 'month', 'year' (override with `.groups` argument)
@@ -150,24 +171,45 @@ raw_df %>%
   geom_col(fill = "#5D729D", colour = NA) +
   facet_grid(sector ~ year) +
   labs(
-    title = "Spare capacity",
-    subtitle = "How many spare beds are there?"
+    title = "Spare Capacity in Toronto Shelters",
+    subtitle = "What is the difference between capacity and occupancy?",
+    x = "**Month**",
+    y = "**Spare capacity**"
   ) +
   theme_minimal() + 
    theme(
      aspect.ratio = 0.3,
      axis.text.x = element_text(family = "Roboto Condensed", size = 11, colour = "grey30", angle = 90, vjust = 0.5),
      axis.text.y = element_text(family = "Roboto Condensed", size = 11, colour = "grey30"),
+     axis.title.y = element_markdown(family = "Roboto Condensed", colour = "grey30", margin = margin(0, 3, 0, 0, "pt"), hjust = 1, vjust = 1),
+     axis.title.x = element_markdown(family = "Roboto Condensed", colour = "grey30", margin = margin(3, 0, 0, 0, "pt"), hjust = 1, vjust = 1),
      plot.title = element_text(family = "Roboto Condensed", size = 18, colour = "#000000", face = "bold"),
      plot.subtitle = element_text(family = "Roboto Condensed", size = 16, colour = "#000000"),
+     panel.grid.major = element_line(size = 0.25),
      panel.grid.minor = element_blank(),
      strip.text.x = element_textbox(
       size = 12,
       color = "white", fill = "#5D729D", box.color = "#4A618C",
       halign = 0.5, linetype = 1, r = unit(1, "pt"), width = unit(1, "npc"),
-      padding = margin(2, 0, 1, 0), margin = margin(3, 3, 3, 3)
-   )
-   )
+      padding = margin(2, 0, 1, 0), margin = margin(3, 3, 3, 3)),
+     strip.text.y = element_blank()
+   ) +
+  scale_y_continuous(
+    expand = c(0, 0.1),
+    breaks = seq(0, 20, 10)
+  ) +
+  geom_richtext(
+    aes(x = 0.5,
+        y = 20,
+        hjust = 0,
+        label = if_else((year == 2017 & month == "Jan"), glue::glue("**{sector}**"), NA_character_)),
+    label.colour = NA,
+    family = "Roboto Condensed", 
+    size = 4, 
+    colour = "grey30"
+  )
 ```
+
+    ## Warning: Removed 175 rows containing missing values (geom_rich_text).
 
 ![](D:/Dropbox/ds_projects/tidytuesday/2020/2020_12_01/README_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
