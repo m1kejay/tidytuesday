@@ -1,4 +1,4 @@
-Untitled
+Week 2020/49: Toronto Shelters
 ================
 
 ``` r
@@ -52,8 +52,8 @@ raw_df %>%
 
     ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 
-![](D:/Dropbox/ds_projects/tidytuesday/2020/2020_12_01/README_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
-but it’s not referring to identical shelters/facilities/program names:
+![](README_files/figure-gfm/unnamed-chunk-3-1.png)<!-- --> but it’s not
+referring to identical shelters/facilities/program names:
 
 ``` r
 raw_df %>%
@@ -134,7 +134,7 @@ raw_df %>%
 
     ## `summarise()` regrouping output by 'month', 'year' (override with `.groups` argument)
 
-![](D:/Dropbox/ds_projects/tidytuesday/2020/2020_12_01/README_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 ``` r
 raw_df %>%
@@ -155,7 +155,7 @@ ggplot(aes(x = month, y = pct, colour = as.factor(sector), group = sector)) +
 
     ## `summarise()` regrouping output by 'month', 'year' (override with `.groups` argument)
 
-![](D:/Dropbox/ds_projects/tidytuesday/2020/2020_12_01/README_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 ``` r
 library(ggtext)
@@ -212,4 +212,4 @@ raw_df %>%
 
     ## Warning: Removed 175 rows containing missing values (geom_rich_text).
 
-![](D:/Dropbox/ds_projects/tidytuesday/2020/2020_12_01/README_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->

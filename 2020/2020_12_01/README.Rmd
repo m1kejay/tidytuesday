@@ -1,7 +1,6 @@
 ---
-title: "Untitled"
+title: "Week 2020/49: Toronto Shelters"
 output: github_document
-knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_file = file.path(dirname(inputFile), 'README.md')) })
 ---
 
 ```{r setup, include=FALSE}
