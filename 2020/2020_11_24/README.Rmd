@@ -1,0 +1,66 @@
+---
+title: "Week 2020/48: Washington Hikes"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+extrafont::loadfonts(device="win")
+#extrafont::fonttable()
+#extrafont::font_import("C:/Windows/Fonts/", pattern = "RobotoCondensed")
+
+library(tidyverse)
+library(lubridate)
+library(ggtext)
+```
+
+```{r import}
+raw_df <- tidytuesdayR::tt_load(2020, week = 48)
+raw_df <- raw_df$hike_data
+```
+```{r clean-df}
+df <-
+  raw_df %>%
+  mutate(
+    length_miles = str_extract(length, "^\\d+.\\d+") %>% as.numeric(),
+    trial_type = case_when(str_detect(length, "roundtrip") ~ "Round Trip",
+                     str_detect(length, "one") ~ "One-Way",
+                     str_detect(length, "trails") ~ "Of Trails"),
+    round_trip_length = ((trial_type == "One-Way") + 1) * length_miles,
+    gain = as.numeric(gain),
+    highpoint = as.numeric(highpoint),
+    rating = as.numeric(rating)
+  ) %>%
+  select(trial_type, length, length_miles, round_trip_length, everything())
+```
+
+```{r}
+df$features[2]
+```
+
+```{r}
+df %>%
+  ggplot(aes(x = as.numeric(highpoint))) +
+  geom_histogram() +
+  theme_minimal()
+```
+
+
+```{r}
+df %>%
+  ggplot(aes(x = highpoint, y = rating)) +
+  geom_point() 
+```
+
+Do those 0 ratings reflect poor quality or lack of reviews? Check later...
+
+
+```{r}
+df %>%
+  slice_max(round_trip_length, n = 20) %>%
+  ggplot(aes(x = round_trip_length, y = gain)) +
+  geom_point()
+```
+
+
+
