@@ -22,28 +22,14 @@ raw_df <- raw_df$shelters
 raw_df
 ```
 
-Not sure what some of the fields refer to. Looks like `id` is in the dataset 3 times:
-
-```{r}
-raw_df %>%
-  count(id) %>%
-  ggplot(aes(x = n)) + geom_histogram()
-```
-but it's not referring to identical shelters/facilities/program names:
-
-```{r}
-raw_df %>%
-  filter(id %in% 1:4) %>%
-  arrange(id)
-```
-
-Ignore for now...
-
 ```{r}
 raw_df %>%
   distinct(sector)
 ```
 
+There appears to be different shelters based on need. 
+
+Let's take a look at occupancy with respect to sector in  raw numbers:
 
 ```{r}
 raw_df %>%
@@ -81,6 +67,8 @@ raw_df %>%
   colorspace::scale_color_discrete_qualitative()
 ```
 
+What about as occupancy as a fraction of capacity?
+
 ```{r}
 raw_df %>%
   mutate(month = month(occupancy_date, label = TRUE),
@@ -89,18 +77,26 @@ raw_df %>%
   summarise(mean_occupancy = mean(occupancy, na.rm = T),
             mean_capacity = mean(capacity, na.rm = T),
             pct = mean_occupancy / mean_capacity) %>%
-ggplot(aes(x = month, y = pct, colour = as.factor(sector), group = sector)) +
+ggplot(aes(x = month, y = pct*100, colour = as.factor(sector), group = sector)) +
   geom_line() +
   geom_point() +
   facet_grid(. ~ year) +
+  theme_minimal() +
   theme(
     axis.text.x = element_text(angle = 90, vjust = 0.5)
+  ) +
+  scale_x_discrete(
+    name = "Month"
+  ) +
+  scale_y_continuous(
+    name = "Percent occupied (%)",
+    limits = c(70, 100)
   )
 ```
 
-```{r dpi = 300, fig.height = 6, fig.width = 8}
-library(ggtext)
+And is there any spare capacity in the network?
 
+```{r dpi = 300, fig.height = 6, fig.width = 8}
 raw_df %>%
   mutate(diff = capacity - occupancy) %>%
    mutate(month = month(occupancy_date, label = TRUE),
@@ -150,3 +146,5 @@ raw_df %>%
     colour = "grey30"
   )
 ```
+
+Seems like a lot of spare capcity for families but very little for people who fall in the other categories. Given occupancy is near 100%, this suggests the demand is there for shelters that cater to individuals. Perhaps resources should be diverted to these other categories? Is monthly occupancy remarkably consistent for individuals because there is no change in demand or simply no available shelters? 

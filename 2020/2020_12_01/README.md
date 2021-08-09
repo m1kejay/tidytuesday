@@ -41,47 +41,6 @@ raw_df
     ## #   shelter_province <chr>, shelter_postal_code <chr>, facility_name <chr>,
     ## #   program_name <chr>, sector <chr>, occupancy <dbl>, capacity <dbl>
 
-Not sure what some of the fields refer to. Looks like `id` is in the
-dataset 3 times:
-
-``` r
-raw_df %>%
-  count(id) %>%
-  ggplot(aes(x = n)) + geom_histogram()
-```
-
-    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
-
-![](README_files/figure-gfm/unnamed-chunk-3-1.png)<!-- --> but it’s not
-referring to identical shelters/facilities/program names:
-
-``` r
-raw_df %>%
-  filter(id %in% 1:4) %>%
-  arrange(id)
-```
-
-    ## # A tibble: 12 x 13
-    ##       id occupancy_date      organization_na~ shelter_name shelter_address
-    ##    <dbl> <dttm>              <chr>            <chr>        <chr>          
-    ##  1     1 2017-01-01 00:00:00 COSTI Immigrant~ COSTI Recep~ 100 Lippincott~
-    ##  2     1 2018-01-01 00:00:00 COSTI Immigrant~ COSTI Recep~ 100 Lippincott~
-    ##  3     1 2019-01-01 00:00:00 COSTI Immigrant~ COSTI Recep~ 100 Lippincott~
-    ##  4     2 2017-01-01 00:00:00 Christie Ossing~ Christie Os~ 973 Lansdowne ~
-    ##  5     2 2018-01-01 00:00:00 COSTI Immigrant~ COSTI Recep~ 100 Lippincott~
-    ##  6     2 2019-01-01 00:00:00 COSTI Immigrant~ COSTI Recep~ 100 Lippincott~
-    ##  7     3 2017-01-01 00:00:00 Christie Ossing~ Christie Os~ 973 Lansdowne ~
-    ##  8     3 2018-01-01 00:00:00 COSTI Immigrant~ COSTI Recep~ 100 Lippincott~
-    ##  9     3 2019-01-01 00:00:00 COSTI Immigrant~ COSTI Recep~ 100 Lippincott~
-    ## 10     4 2017-01-01 00:00:00 Christie Refuge~ Christie Re~ 43 Christie St~
-    ## 11     4 2018-01-01 00:00:00 COSTI Immigrant~ COSTI Recep~ 100 Lippincott~
-    ## 12     4 2019-01-01 00:00:00 COSTI Immigrant~ COSTI Recep~ 100 Lippincott~
-    ## # ... with 8 more variables: shelter_city <chr>, shelter_province <chr>,
-    ## #   shelter_postal_code <chr>, facility_name <chr>, program_name <chr>,
-    ## #   sector <chr>, occupancy <dbl>, capacity <dbl>
-
-Ignore for now…
-
 ``` r
 raw_df %>%
   distinct(sector)
@@ -95,6 +54,10 @@ raw_df %>%
     ## 3 Families
     ## 4 Women   
     ## 5 Youth
+
+There appears to be different shelters based on need.
+
+Let’s take a look at occupancy with respect to sector in raw numbers:
 
 ``` r
 raw_df %>%
@@ -132,9 +95,11 @@ raw_df %>%
   colorspace::scale_color_discrete_qualitative()
 ```
 
-    ## `summarise()` regrouping output by 'month', 'year' (override with `.groups` argument)
+    ## `summarise()` has grouped output by 'month', 'year'. You can override using the `.groups` argument.
 
-![](README_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+
+What about as occupancy as a fraction of capacity?
 
 ``` r
 raw_df %>%
@@ -144,22 +109,30 @@ raw_df %>%
   summarise(mean_occupancy = mean(occupancy, na.rm = T),
             mean_capacity = mean(capacity, na.rm = T),
             pct = mean_occupancy / mean_capacity) %>%
-ggplot(aes(x = month, y = pct, colour = as.factor(sector), group = sector)) +
+ggplot(aes(x = month, y = pct*100, colour = as.factor(sector), group = sector)) +
   geom_line() +
   geom_point() +
   facet_grid(. ~ year) +
+  theme_minimal() +
   theme(
     axis.text.x = element_text(angle = 90, vjust = 0.5)
+  ) +
+  scale_x_discrete(
+    name = "Month"
+  ) +
+  scale_y_continuous(
+    name = "Percent occupied (%)",
+    limits = c(70, 100)
   )
 ```
 
-    ## `summarise()` regrouping output by 'month', 'year' (override with `.groups` argument)
+    ## `summarise()` has grouped output by 'month', 'year'. You can override using the `.groups` argument.
 
-![](README_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+
+And is there any spare capacity in the network?
 
 ``` r
-library(ggtext)
-
 raw_df %>%
   mutate(diff = capacity - occupancy) %>%
    mutate(month = month(occupancy_date, label = TRUE),
@@ -212,4 +185,11 @@ raw_df %>%
 
     ## Warning: Removed 175 rows containing missing values (geom_rich_text).
 
-![](README_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+
+Seems like a lot of spare capcity for families but very little for
+people who fall in the other categories. Given occupancy is near 100%,
+this suggests the demand is there for shelters that cater to
+individuals. Perhaps resources should be diverted to these other
+categories? Is monthly occupancy remarkably consistent for individuals
+because there is no change in demand or simply no available shelters?
