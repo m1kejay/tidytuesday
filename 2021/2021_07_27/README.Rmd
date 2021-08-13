@@ -7,7 +7,7 @@ output: github_document
 library(tidyverse)
 library(magrittr)
 library(gt)
-#library(magick)
+library(magick)
 library(countrycode)
 
 raw_df <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-07-27/olympics.csv')
@@ -98,6 +98,7 @@ cleaned_df_gg <-
 
 gt_object <-
   cleaned_df_gg %>%
+  slice_head(n = 10) %>%
   gt() %>%
   tab_header(title = md("Olympic medals for 2016")) %>%
   text_transform(
@@ -167,8 +168,11 @@ gt_object <-
     dummy ~ px(500)
   )
 
-gt_object
+#gtsave(gt_object, path = "D:/Dropbox/ds_projects/tidytuesday/2021/2021_07_27/", filename = "table_out.png")
+#gt_object
 ```
+
+![](table_out.png)
 
 ```{r eval = FALSE}
 # TODO: Create a shiny reactive table where you can choose year
