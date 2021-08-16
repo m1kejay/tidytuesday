@@ -114,7 +114,7 @@ gt_object <-
     locations = cells_body(columns = c(dummy)),
     fn = function(x){
       #map(.$data, ggplot_image, height = px(10))
-      cleaned_df_gg$data %>% map(ggplot_image, height = px(30), aspect_ratio = 9.9)
+      cleaned_df_gg$data %>% map(ggplot_image, height = px(40), aspect_ratio = 9.9)
     }
   ) %>%
   cols_hide(c(data)) %>%
@@ -165,11 +165,11 @@ gt_object <-
     )
   ) %>%
   cols_width(
-    dummy ~ px(500)
+    dummy ~ px(400)
   )
 
 #gtsave(gt_object, path = "D:/Dropbox/ds_projects/tidytuesday/2021/2021_07_27/", filename = "table_out.png")
-#gt_object
+gt_object
 ```
 
 ![](table_out.png)
