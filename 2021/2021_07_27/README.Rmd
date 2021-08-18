@@ -169,7 +169,7 @@ gt_object <-
   )
 
 #gtsave(gt_object, path = "D:/Dropbox/ds_projects/tidytuesday/2021/2021_07_27/", filename = "table_out.png")
-#gt_object
+gt_object
 ```
 
 ![](table_out.png)
