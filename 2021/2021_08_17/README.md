@@ -7,6 +7,7 @@ extrafont::loadfonts(device="win")
 library(tidyverse)
 library(waffle)
 library(wesanderson)
+library(ggtext)
 
 raw_df <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-08-17/computer.csv')
 ```
@@ -26,9 +27,20 @@ raw_df %>%
   arrange(desc(percent))
 
 pal <- wes_palette("Chevalier1", 7, type = "continuous")
+```
 
+``` r
+test <-
 waffle_data %>%
-  ggplot(aes(fill = type, values = percent)) +
+  mutate(
+    row_number = row_number(),
+    colour = glue::glue("<span style = \"color:{ pal[row_number] }\">{ type }</span>")
+    )
+```
+
+``` r
+test %>%
+  ggplot(aes(fill = fct_inorder(colour), values = percent)) +
   geom_waffle(n_rows = 10, colour = "white", make_proportional = TRUE, size = 1, radius = unit(2, "pt")) +
   theme_enhance_waffle() +
   scale_x_discrete(expand = c(0, 0)) +
@@ -41,16 +53,17 @@ waffle_data %>%
   scale_fill_manual(values = pal) +
   theme(
     aspect.ratio = 1,
-    legend.position = "right"
-  ) + 
-  guides(fill = guide_legend(title.position="top"))
+    legend.position = "right",
+    legend.title = element_blank(),
+    legend.text = element_textbox(size = 11, face = "bold")
+  )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-1-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
 
 ``` r
-waffle_data %>%
-  ggplot(aes(fill = type, values = percent)) +
+test %>%
+  ggplot(aes(fill = colour, values = percent)) +
   geom_waffle(n_rows = 10, colour = "white", make_proportional = FALSE, size = 1) +
   theme_minimal(base_family = "Roboto Condensed") +
   scale_x_discrete(expand = c(0, 0)) +
@@ -63,12 +76,13 @@ waffle_data %>%
   scale_fill_manual(values = pal) +
   theme(
     aspect.ratio = 1,
-    legend.position = "none"
+    legend.position = "none",
+    strip.text = element_textbox()
   ) +
   facet_wrap(. ~ fct_reorder(type, -percent), nrow = 1)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
 ``` r
 # TODO: simplify legend, colour-code the text, remove the squares
