@@ -19,10 +19,13 @@ Here is a selection of my visualisations:
 
 ![2016 Olympic Medal results](/2021/2021_07_27/table_out.png)
 
-[Interactions with Computer in StarTrek](/2021/2021_08_1):
+[Interactions with Computer in StarTrek (code)](/2021/2021_08_1):
 
 ![Star Trek voice commands](/2021/2021_08_17/README_files/figure-gfm/unnamed-chunk-3-1.png)
 
-[Oldest Lemurs  in captivity](/2021/2021_08_24):
+[Oldest Lemurs  in captivity (code)](/2021/2021_08_24):
 
 ![Lemurs](/2021/2021_08_24/README_files/figure-gfm/unnamed-chunk-6-1.png)
+
+[Broadband Usage in IL and surrounding states (code)](/2021/2021_05_11):
+![Broadband usage](/2021/2021_05_11/README_files/figure-gfm/broadband-usage-illinois-surrounding-states-1.png)
