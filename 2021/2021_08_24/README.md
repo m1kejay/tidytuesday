@@ -42,7 +42,7 @@ raw_df %>%
   filter(!is.na(age_at_death_y),
          !is.na(common_name),
          age_category != "IJ", # Exclude infant/juvenile deaths
-         n() >= 10 # Have at least 10 individuals
+         #n() >= 10 # Have at least 10 individuals
          ) %>%
   ggplot(aes(x = age_at_death_y, y = fct_reorder(common_name, age_at_death_y, .fun = mean))) +
   geom_point(colour = "#0EA4EA", alpha = 0.1) +
@@ -56,7 +56,7 @@ raw_df %>%
   theme_minimal() +
   theme(
     panel.grid.minor = element_blank(),
-    panel.grid.major.y = element_line(linetype = 3),
+    panel.grid.major.y = element_line(linetype = 3, size = 0.5),
     panel.grid.major.x = element_blank(),
     plot.title = element_markdown(size = 15, hjust = 0.5, margin = margin(0,0,10,0)),
     plot.subtitle = element_markdown(size = 15, hjust  = 0.5, margin = margin(0,0,10,0)),
@@ -66,10 +66,63 @@ raw_df %>%
   coord_cartesian(
     clip = "off"
   ) +
-  geom_text(data = . %>% filter(row_number() == 1), label = "Breed", x = -3.3, y = 26)
+  geom_richtext(data = . %>% filter(row_number() == 1), label = "Breed", x = -3.5, y = 26, label.colour = NA)
 ```
 
 ![](README_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+
+``` r
+library(ggridges)
+
+raw_df %>%
+  left_join(taxonomy, by = "taxon") %>%
+  select(-matches("weight|wt|days_before_death|preg|expected_gestation_d")) %>%
+  distinct(across()) %>%
+  group_by(common_name) %>%
+  filter(!is.na(age_at_death_y),
+         !is.na(common_name),
+         age_category != "IJ", # Exclude infant/juvenile deaths
+         n() >= 10 # Have at least 10 individuals
+         ) %>%
+  ggplot(aes(x = age_at_death_y, y = fct_reorder(common_name, age_at_death_y, .fun = mean))) +
+  ggridges::geom_density_ridges(
+    scale = 0.95,
+    size = 0.25,
+    rel_min_height = 0.005, 
+    jittered_points = TRUE, 
+    point_shape = 21, 
+    point_size = 3,
+    position = position_raincloud(height = 0), 
+    fill = "#0EA4EA",
+    point_colour = "#FFFFFF",
+    alpha = 0.5,
+    quantile_lines = TRUE, quantiles = 2,
+    vline_colour = "#FF9935",
+    vline_size = 1
+  ) +
+  scale_y_discrete(
+    expand = c(0, 0),
+    name = "Breed"
+  ) +
+  scale_x_continuous(
+    expand = c(0, 0),
+    name = "Age"
+  )+
+  coord_cartesian(
+    clip = "off"
+  ) +
+  labs(
+    title = "What is the <span style='color:#FF9935'>**median age**</span> of <span style='color:#0EA4EA'>**all lemurs**</span> by breed?") +
+  theme_ridges() +
+  theme(
+    panel.grid.major.x = element_blank(),
+    plot.title = element_markdown(size = 15)
+    )
+```
+
+    ## Picking joint bandwidth of 2.72
+
+![](README_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
 
 ``` r
 formatted_df <-
@@ -123,7 +176,7 @@ formatted_df %>%
   annotate("text", x = min(formatted_df$date) + 1500, y = 21, label = "Born")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
 Above is fine, but only includes animals which have died… what about
 those that are still alive?
@@ -242,7 +295,7 @@ formatted_df %>%
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 Ordered by age:
 
@@ -300,4 +353,4 @@ formatted_df %>%
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
