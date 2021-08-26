@@ -97,3 +97,53 @@ combined_df %>%
     ## Warning in mask$eval_all_mutate(quo): NAs introduced by coercion
 
 ![](README_files/figure-gfm/broadband-usage-illinois-surrounding-states-1.png)<!-- -->
+
+Binned plot:
+
+``` r
+combined_df %>%
+  mutate(broadband_availability_per_fcc = as.numeric(broadband_availability_per_fcc),
+         broadband_usage = as.numeric(broadband_usage),
+         binned_usage = cut_width(broadband_usage*100, 20, boundary = 0)) %>%
+  filter(st %in% c("IL", "WI", "MI", "IN")) %>%
+  ggplot() +
+  geom_sf(aes(geometry = geometry, fill = binned_usage), colour = "grey90") +
+  geom_sf(data = . %>% group_by(st) %>% summarise(), colour = "grey15", fill = NA) +
+  coord_sf(crs = 4326, 
+           expand = TRUE,
+           clip = "off") +
+   scale_fill_discrete_sequential(
+     palette = "Inferno",
+     name = "Broadband usage (%)",
+  #   na.value = "grey90",
+  #   labels = scales::label_number(accuracy = 1),
+  #   guide = guide_colorbar(
+  #    barwidth = unit(5, "cm"),
+  #    frame.colour = "black",
+  #    frame.linewidth = 1,
+  #    frame.linetype = 1,
+  #    draw.llim = FALSE,
+  #    draw.ulim = FALSE
+  #   )
+   ) +
+  annotate(geom = "text", x = -92, y = 38, label = "Illinois") +
+  annotate(geom = "text", x = -83.5, y = 39, label = "Indiana") +
+  annotate(geom = "text", x = -82, y = 45, label = "Michigan") +
+  annotate(geom = "text", x = -93, y = 43, label = "Wisconsin") +
+  labs(
+    title = "**Broadband usage** in Illinois and neighbouring states"
+  ) +
+  ggthemes::theme_map() +
+  theme(
+    legend.position = "bottom",
+    strip.background = element_blank(),
+    panel.spacing = unit(0.5, "lines"),
+    plot.title = element_markdown(hjust = 0.5, size = 15)
+  )
+```
+
+    ## Warning in mask$eval_all_mutate(quo): NAs introduced by coercion
+
+    ## Warning in mask$eval_all_mutate(quo): NAs introduced by coercion
+
+![](README_files/figure-gfm/broadband-usage-illinois-surrounding-states-binned-1.png)<!-- -->
