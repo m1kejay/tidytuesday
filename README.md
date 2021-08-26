@@ -28,4 +28,5 @@ Here is a selection of my visualisations:
 ![Lemurs](/2021/2021_08_24/README_files/figure-gfm/unnamed-chunk-6-1.png)
 
 [Broadband Usage in IL and surrounding states (code)](/2021/2021_05_11):
+
 ![Broadband usage](/2021/2021_05_11/README_files/figure-gfm/broadband-usage-illinois-surrounding-states-1.png)
