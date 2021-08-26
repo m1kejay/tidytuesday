@@ -118,6 +118,26 @@ raw_df %>%
 
 ```
 
+```{r fig.height = 9, fig.width = 6}
+# Any difference between males and females for each breed?
+raw_df %>%
+  left_join(taxonomy, by = "taxon") %>%
+  select(-matches("weight|wt|days_before_death|preg|expected_gestation_d")) %>%
+  distinct(across()) %>%
+  group_by(common_name) %>%
+  filter(!is.na(age_at_death_y),
+         !is.na(common_name),
+         age_category != "IJ", # Exclude infant/juvenile deaths
+         n() >= 10 # Have at least 10 individuals
+         ) %>%
+  ggplot(aes(y = fct_reorder(common_name, age_at_death_y, .fun = mean))) +
+  geom_density_ridges(
+    aes(x = age_at_death_y, fill = sex), 
+    alpha = 0.25
+  )
+```
+
+
 ```{r}
 formatted_df <-
   raw_df %>%
