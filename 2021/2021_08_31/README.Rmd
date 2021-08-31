@@ -1,0 +1,79 @@
+---
+title: "Week 2021/36 Bird Baths"
+output: github_document
+---
+
+```{r load-and-import, echo=TRUE, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(tidytext)
+library(colorspace)
+library(ggtext)
+
+raw_df <-  readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-08-31/bird_baths.csv')
+raw_df
+```
+
+```{r}
+
+
+raw_df %>%
+  count(bioregions, urban_rural, survey_year, wt = bird_count) %>%
+  filter(!is.na(bioregions)) %>%
+  mutate(bioregions = tidytext::reorder_within(bioregions, n, survey_year)) %>%
+  ggplot(aes(x = n, y = bioregions, fill = urban_rural)) +
+  geom_bar(stat = "identity") +
+  facet_grid(survey_year ~ ., scales = "free_y", space = "free_y") +
+  theme_minimal() +
+  tidytext::scale_y_reordered(
+    name = "Region"
+    ) +
+  scale_fill_discrete_qualitative(palette = "Harmonic", name = "") +
+  scale_x_continuous(
+    name = "Bird count"
+  ) +
+  theme(
+    legend.position = "none",
+    plot.title = element_markdown()
+  ) +
+  labs(
+    title = "Birds visting bird baths in <span style='color:#C7A76C'>**Rural**</span> and <span style='color:#7DB0DD'>**Urban**</span> spaces",
+    subtitle = "Number of observations in different Australian regions in 2014 and 2015"
+    
+  )
+```
+
+
+
+```{r}
+raw_df %>%
+  filter(bird_count > 0, survey_year == 2015) %>%
+  distinct(survey_year, bioregions, bird_type, urban_rural) %>%
+  count(bioregions, urban_rural) %>%
+  add_count(bioregions, wt = n) %>% # Count number of different species
+  arrange(fct_rev(urban_rural), n) %>% # Order data for plot
+  ggplot(aes(y = fct_inorder(bioregions), x = n, fill = urban_rural)) +
+  geom_col(position = position_dodge())  +
+  scale_fill_discrete_qualitative(palette = "Harmonic", name = "") +
+  scale_x_continuous(
+    name = "Number of species",
+    expand = c(0, 0),
+    breaks = seq(0, 70, 10)
+  ) +
+  scale_y_discrete(
+    name = "Region"
+  ) +
+  theme_minimal() +
+  theme(
+    panel.grid.major.x = element_line(linetype = 1, size = 0.5, colour = "#FFFFFF"),
+    panel.grid.minor.x = element_blank(),
+    panel.grid.major.y = element_blank(),
+    panel.ontop = TRUE,
+    plot.title = element_markdown(),
+    legend.position = "none"
+  ) +
+  labs(
+    title = "Variety of birds in <span style='color:#C7A76C'>**Rural**</span> and <span style='color:#7DB0DD'>**Urban**</span> Australian bird baths",
+    subtitle = "Number of different species in 2015"
+  )
+```
+
